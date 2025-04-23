@@ -42,7 +42,6 @@ func (this MFlags) Validate() {
 	for key, def := range this {
 		for i, input := range def.Inputs {
 			if input.MaxOccurences == 0 {
-				fmt.Println(input.Name)
 				input.MaxOccurences = 1
 			}
 

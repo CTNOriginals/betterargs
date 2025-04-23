@@ -20,7 +20,7 @@ type Input struct {
 
 	// Specify a function that can validate a potential input.
 	//
-	// If ommited, the input will always be valid given that the current arg is not a defined flag
+	// If ommited, the input will always be valid given that the arg is not a defined flag
 	Validator func(arg string) bool
 }
 
