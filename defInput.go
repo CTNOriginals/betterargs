@@ -39,15 +39,3 @@ func (this InputOrder) String() string {
 
 	return utils.MapToString(items, func(val string) string { return val })
 }
-
-func (this InputOrder) Range() (min int, max int) {
-	max = len(this)
-
-	for _, def := range this {
-		if def.Required {
-			min++
-		}
-	}
-
-	return min, max
-}

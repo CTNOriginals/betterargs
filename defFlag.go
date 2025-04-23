@@ -38,7 +38,7 @@ func (this MFlags) String() string {
 	return utils.MapToString(this, func(val Flag) string { return val.String() })
 }
 
-func (this MFlags) Validate() {
+func (this MFlags) validate() {
 	for key, def := range this {
 		for i, input := range def.Inputs {
 			if input.MaxOccurences == 0 {
@@ -52,7 +52,7 @@ func (this MFlags) Validate() {
 	}
 }
 
-func (this MFlags) Find(flag string) (name string, definition Flag, err error) {
+func (this MFlags) find(flag string) (name string, definition Flag, err error) {
 	for key, def := range this {
 		if flag == "--"+key || slices.Contains(def.Aliases, flag) {
 			return key, def, nil
@@ -67,10 +67,10 @@ func (this MFlags) Find(flag string) (name string, definition Flag, err error) {
 // args should be the remaining arguments after the flag that triggered this definition
 //
 //	var args = ["script/path/file.go", "--file", "dir/", "file.ext"]
-//	definition.ParseInputs(args[2:]) // args = ["dir/", "file.ext"]
+//	definition.parseInputs(args[2:]) // args = ["dir/", "file.ext"]
 //
 // This function returns the amount of inputs that were successfully parsed from args.
-func (this MFlags) ParseInputs(def Flag, instance *Instance, args []string) (offset int) {
+func (this MFlags) parseInputs(def Flag, instance *Instance, args []string) (offset int) {
 	for i := 0; i < len(def.Inputs); i++ {
 		var input = def.Inputs[i]
 
@@ -83,11 +83,11 @@ func (this MFlags) ParseInputs(def Flag, instance *Instance, args []string) (off
 		//?? I dont know how to combine the two conditions without making it scream at me :/
 		if input.Validator != nil && !input.Validator(nextArg) {
 			continue
-		} else if _, _, err := this.Find(nextArg); err == nil {
+		} else if _, _, err := this.find(nextArg); err == nil {
 			continue
 		}
 
-		instance.PushInput(input.Name, nextArg)
+		instance.pushInput(input.Name, nextArg)
 		offset++
 
 		if input.MaxOccurences == -1 || len(instance.Inputs[input.Name]) < input.MaxOccurences {

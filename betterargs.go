@@ -26,7 +26,7 @@ func (this ParsedArguments) String() string {
 }
 
 func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) {
-	definitions.Validate()
+	definitions.validate()
 
 	parsed.Raw = make([]string, len(args))
 	copy(parsed.Raw, args)
@@ -39,16 +39,16 @@ func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) 
 
 	for i := 0; i < len(args); i++ {
 		var arg = args[i]
-		var key, def, err = definitions.Find(arg)
+		var key, def, err = definitions.find(arg)
 
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
 		}
 
-		var instance = parsed.Args.NewInstance(key, i, arg)
+		var instance = parsed.Args.newInstance(key, i, arg)
 
-		i += definitions.ParseInputs(def, instance, args[i+1:])
+		i += definitions.parseInputs(def, instance, args[i+1:])
 	}
 
 	fmt.Println()

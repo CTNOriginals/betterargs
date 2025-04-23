@@ -27,7 +27,7 @@ func (this Instance) String() string {
 	return utils.StructToString(this)
 }
 
-func (this *Instance) PushInput(name string, value string) {
+func (this *Instance) pushInput(name string, value string) {
 	this.Inputs[name] = append(this.Inputs[name], value)
 }
 
@@ -44,7 +44,7 @@ func (this MInstances) String() string {
 	})
 }
 
-func (this MInstances) NewInstance(key string, index int, arg string) (instance *Instance) {
+func (this MInstances) newInstance(key string, index int, arg string) (instance *Instance) {
 	instance = &Instance{
 		Index:  index,
 		Arg:    arg,
