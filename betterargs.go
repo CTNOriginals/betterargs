@@ -15,7 +15,7 @@ type ParsedArguments struct {
 	SourceFile string
 
 	// The definitions of all possible argument flags and their implimentations
-	Definitions MArgs
+	Definitions MFlags
 
 	// All arg instances that were present
 	Args MInstances
@@ -25,7 +25,7 @@ func (this ParsedArguments) String() string {
 	return utils.StructToString(this)
 }
 
-func ParseArguments(args []string, definitions MArgs) (parsed ParsedArguments) {
+func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) {
 	parsed.Raw = make([]string, len(args))
 	copy(parsed.Raw, args)
 
@@ -49,16 +49,12 @@ func ParseArguments(args []string, definitions MArgs) (parsed ParsedArguments) {
 			Flag:  arg,
 		}
 
-		// fmt.Println(parsed.Args)
 		if parsed.Args[key] == nil {
 			parsed.Args[key] = make([]Instance, 0)
 		}
 
 		parsed.Args[key] = append(parsed.Args[key], instance)
-		_ = def
 
-		//! Note to self: maps are randomly ordered
-		//TODO find a way to indicate argument inputs order
 		var minInputs, maxInputs = def.Inputs.Range()
 		if minInputs == 0 && maxInputs == 0 {
 			continue
