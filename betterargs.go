@@ -26,6 +26,8 @@ func (this ParsedArguments) String() string {
 }
 
 func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) {
+	definitions.Validate()
+
 	parsed.Raw = make([]string, len(args))
 	copy(parsed.Raw, args)
 
