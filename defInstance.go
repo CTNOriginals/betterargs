@@ -17,8 +17,8 @@ func (this MInputInstances) String() string {
 type Instance struct {
 	// The index at which this instance occurred
 	Index int
-	// The flag that was used to trigger this instances definition
-	Flag string
+	// The arg that was used to trigger this instances definition
+	Arg string
 	// All the args that followed that are defined and validated to be inputs for this flag
 	Inputs MInputInstances
 }
@@ -42,4 +42,19 @@ func (this MInstances) String() string {
 		}
 		return strings.Join(stringified, ",\n\n")
 	})
+}
+
+func (this MInstances) NewInstance(key string, index int, arg string) (instance *Instance) {
+	instance = &Instance{
+		Index:  index,
+		Arg:    arg,
+		Inputs: map[string][]string{},
+	}
+
+	//? Add the new instance to the list
+	this[key] = append(this[key], *instance)
+	//? Reteive the instance from the array so that any future changes to it are updated in the array automatically
+	instance = &this[key][len(this[key])-1]
+
+	return instance
 }

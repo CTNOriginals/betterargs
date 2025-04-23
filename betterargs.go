@@ -46,51 +46,9 @@ func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) 
 			continue
 		}
 
-		var instance = &Instance{
-			Index:  i,
-			Flag:   arg,
-			Inputs: map[string][]string{},
-		}
+		var instance = parsed.Args.NewInstance(key, i, arg)
 
-		//? Add the new instance to the list
-		parsed.Args[key] = append(parsed.Args[key], *instance)
-		//? Reteive the instance from the array so that any changes to it are also present in the array automatically
-		instance = &parsed.Args[key][len(parsed.Args[key])-1]
-
-		var minInputs, maxInputs = def.Inputs.Range()
-		if minInputs == 0 && maxInputs == 0 {
-			continue
-		}
-
-		//? The amout of indexes to look ahead for inputs
-		//? This amount goes up each time an input is succesfully validated by any input definition
-		var offset = 1
-		for j := 0; j < len(def.Inputs); j++ {
-			var input = def.Inputs[j]
-			var nextIndex = i + offset
-
-			if nextIndex >= len(args) {
-				break
-			}
-
-			var nextArg = args[nextIndex]
-
-			//?? I dont know how to combine the two conditions without making it scream at me :/
-			if input.Validator != nil && !input.Validator(nextArg) {
-				continue
-			} else if _, _, err := definitions.Find(nextArg); err == nil {
-				continue
-			}
-
-			instance.PushInput(input.Name, nextArg)
-			offset++
-
-			if input.MaxOccurences > -1 && len(instance.Inputs[input.Name]) < input.MaxOccurences {
-				j--
-			}
-		}
-
-		i += offset - 1
+		i += definitions.ParseInputs(def, instance, args[i+1:])
 	}
 
 	fmt.Println()

@@ -61,3 +61,39 @@ func (this MFlags) Find(flag string) (name string, definition Flag, err error) {
 
 	return "", Flag{}, fmt.Errorf("Argument flag '%s' is not defined", flag)
 }
+
+// Parse all valid inputs into their respective input definition
+//
+// args should be the remaining arguments after the flag that triggered this definition
+//
+//	var args = ["script/path/file.go", "--file", "dir/", "file.ext"]
+//	definition.ParseInputs(args[2:]) // args = ["dir/", "file.ext"]
+//
+// This function returns the amount of inputs that were successfully parsed from args.
+func (this MFlags) ParseInputs(def Flag, instance *Instance, args []string) (offset int) {
+	for i := 0; i < len(def.Inputs); i++ {
+		var input = def.Inputs[i]
+
+		if offset >= len(args) {
+			break
+		}
+
+		var nextArg = args[offset]
+
+		//?? I dont know how to combine the two conditions without making it scream at me :/
+		if input.Validator != nil && !input.Validator(nextArg) {
+			continue
+		} else if _, _, err := this.Find(nextArg); err == nil {
+			continue
+		}
+
+		instance.PushInput(input.Name, nextArg)
+		offset++
+
+		if input.MaxOccurences == -1 || len(instance.Inputs[input.Name]) < input.MaxOccurences {
+			i--
+		}
+	}
+
+	return offset
+}
