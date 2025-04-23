@@ -57,10 +57,6 @@ func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) 
 		//? Reteive the instance from the array so that any changes to it are also present in the array automatically
 		instance = &parsed.Args[key][len(parsed.Args[key])-1]
 
-		if parsed.Args[key] == nil {
-			parsed.Args[key] = make([]Instance, 0)
-		}
-
 		var minInputs, maxInputs = def.Inputs.Range()
 		if minInputs == 0 && maxInputs == 0 {
 			continue
