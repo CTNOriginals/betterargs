@@ -6,17 +6,29 @@ import (
 	"github.com/CTNOriginals/betterargs/utils"
 )
 
+type MInputInstances map[string][]string
+
+func (this MInputInstances) String() string {
+	return utils.MapToString(this, func(val []string) string {
+		return strings.Join(val, "\n")
+	})
+}
+
 type Instance struct {
 	// The index at which this instance occurred
 	Index int
 	// The flag that was used to trigger this instances definition
 	Flag string
-	// Any arguments that followed that were not defined as flags
-	Inputs []string
+	// All the args that followed that are defined and validated to be inputs for this flag
+	Inputs MInputInstances
 }
 
 func (this Instance) String() string {
 	return utils.StructToString(this)
+}
+
+func (this *Instance) PushInput(name string, value string) {
+	this.Inputs[name] = append(this.Inputs[name], value)
 }
 
 // All arg instances grouped by their arg definition key
