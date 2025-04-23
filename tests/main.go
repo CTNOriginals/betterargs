@@ -25,9 +25,10 @@ var argOptions = betterargs.MFlags{
 				},
 			},
 			{
-				Name:        "target-file",
-				Description: "The target file path",
-				Required:    true,
+				Name:          "target-file",
+				Description:   "The target file path",
+				Required:      true,
+				MaxOccurences: 2,
 				Validator: func(arg string) bool {
 					return !strings.HasSuffix(arg, "/")
 				},
@@ -38,7 +39,7 @@ var argOptions = betterargs.MFlags{
 
 var testArgs = []string{"C:\\path\\to\\file\\betterargs.exe",
 	"--file", "/path/to/dir/", "path/to/file.ext",
-	"--file", "path/to/file.ext",
+	"--file", "path/to/file.ext", "path2/to3/file45.ext",
 	"--help",
 }
 
