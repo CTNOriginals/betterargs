@@ -1,1 +1,69 @@
 package betterargs
+
+import (
+	"fmt"
+
+	"github.com/CTNOriginals/betterargs/utils"
+)
+
+type ParsedArguments struct {
+	//TODO Find better wording for this comment:
+	// The unedited arguments as they were passed in at the launch of the program
+	Raw []string
+
+	// The path to the file that is currently running.
+	SourceFile string
+
+	// The definitions of all possible argument flags and their implimentations
+	Definitions MArgs
+
+	// All arg instances that were present
+	Args MInstances
+}
+
+func (this ParsedArguments) String() string {
+	return utils.StructToString(this)
+}
+
+func ParseArguments(args []string, definitions MArgs) (parsed ParsedArguments) {
+	parsed.Raw = make([]string, len(args))
+	copy(parsed.Raw, args)
+
+	parsed.SourceFile = args[0]
+	args, _ = utils.Splice(args, 0, 1)
+
+	parsed.Definitions = definitions
+	parsed.Args = MInstances{}
+
+	for i := 0; i < len(args); i++ {
+		var arg = args[i]
+		var key, def, err = definitions.Find(arg)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		var instance = Instance{
+			Index: i,
+			Flag:  arg,
+		}
+
+		// fmt.Println(parsed.Args)
+		if parsed.Args[key] == nil {
+			parsed.Args[key] = make([]Instance, 0)
+		}
+
+		parsed.Args[key] = append(parsed.Args[key], instance)
+		_ = def
+
+		//! Note to self: maps are randomly ordered
+		//TODO find a way to indicate argument inputs order
+		var minInputs, maxInputs = def.Inputs.Range()
+		if minInputs == 0 && maxInputs == 0 {
+			continue
+		}
+	}
+
+	return parsed
+}
