@@ -71,6 +71,8 @@ func (this MFlags) find(flag string) (name string, definition Flag, err error) {
 //
 // This function returns the amount of inputs that were successfully parsed from args.
 func (this MFlags) parseInputs(def Flag, instance *Instance, args []string) (offset int) {
+	//TODO print the help section for this flag along with any panic
+
 	for i := 0; i < len(def.Inputs); i++ {
 		var input = def.Inputs[i]
 
@@ -78,20 +80,28 @@ func (this MFlags) parseInputs(def Flag, instance *Instance, args []string) (off
 			break
 		}
 
-		var nextArg = args[offset]
+		var arg = args[offset]
+		_, _, err := this.find(arg)
+		var argIsFlag = err == nil
 
-		//?? I dont know how to combine the two conditions without making it scream at me :/
-		if input.Validator != nil && !input.Validator(nextArg) {
-			continue
-		} else if _, _, err := this.find(nextArg); err == nil {
+		if (input.Validator != nil && !input.Validator(arg)) || (input.Validator == nil && argIsFlag) {
+			if input.Required && len(instance.Inputs[input.Name]) == 0 {
+				panic(fmt.Sprintf("Argument Input ERROR: Expected valid input argument for '%s' but found invalid argument: '%s'", input.Name, arg))
+			}
 			continue
 		}
 
-		instance.pushInput(input.Name, nextArg)
+		instance.pushInput(input.Name, arg)
 		offset++
 
 		if input.MaxOccurences == -1 || len(instance.Inputs[input.Name]) < input.MaxOccurences {
 			i--
+		}
+	}
+
+	for _, input := range def.Inputs {
+		if input.Required && len(instance.Inputs[input.Name]) == 0 {
+			panic(fmt.Sprintf("Argument Input ERROR: Expected valid input argument for '%s'", input.Name))
 		}
 	}
 
