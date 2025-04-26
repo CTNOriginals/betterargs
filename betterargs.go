@@ -51,7 +51,19 @@ func ParseArguments(args []string, definitions MFlags) (parsed ParsedArguments) 
 		i += definitions.parseInputs(def, instance, args[i+1:])
 	}
 
-	fmt.Println()
-
 	return parsed
+}
+
+func ExecuteArguments(parsedArgs ParsedArguments) {
+	for key, instances := range parsedArgs.Args {
+		var def = parsedArgs.Definitions[key]
+
+		if def.Action == nil {
+			continue
+		}
+
+		for _, instance := range instances {
+			def.Action(instance)
+		}
+	}
 }

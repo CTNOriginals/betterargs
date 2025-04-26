@@ -21,6 +21,8 @@ type Flag struct {
 	// and the input after it returned true,
 	// the next arg will be evaluated by the third input
 	Inputs InputOrder
+
+	Action func(instance Instance)
 }
 
 func (this Flag) String() string {

@@ -10,10 +10,13 @@ import (
 
 // run program.exe --file file/path/file.exe
 var argOptions = betterargs.MFlags{
-	// "help": {
-	// 	Aliases:     []string{"-H"},
-	// 	Description: "Display a list of possible arguments along with their description",
-	// },
+	"help": {
+		Aliases:     []string{"-H"},
+		Description: "Display a list of possible arguments along with their description",
+		Action: func(instance betterargs.Instance) {
+			fmt.Println(instance)
+		},
+	},
 	"files": {
 		Description: "The file to do stuff with",
 		Inputs: betterargs.InputOrder{
@@ -39,17 +42,23 @@ var argOptions = betterargs.MFlags{
 				},
 			},
 		},
+		Action: func(instance betterargs.Instance) {
+			fmt.Println(instance)
+		},
 	},
 }
 
 var testArgs = []string{"C:\\path\\to\\file\\betterargs.exe",
 	"--files", "./path/to/dir/", "C:/foo/bar/", "filename", ".ext",
 	// "--file", "path/to/file.ext", "path2/to3/file45.ext",
-	// "--help",
+	"--help",
+	"-H",
 }
 
 func main() {
 	fmt.Printf("\n\n---- Start %s ----\n", time.Now().Format(time.TimeOnly))
 
-	fmt.Println(betterargs.ParseArguments(testArgs, argOptions))
+	var parsed = betterargs.ParseArguments(testArgs, argOptions)
+	betterargs.ExecuteArguments(parsed)
+	// fmt.Println(betterargs.ParseArguments(testArgs, argOptions))
 }
