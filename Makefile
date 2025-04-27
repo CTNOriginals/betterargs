@@ -13,18 +13,18 @@ VERSION_PARTS      := $(subst ., ,$(VERSION))
 
 MAJOR              := $(word 1,$(VERSION_PARTS))
 MINOR              := $(word 2,$(VERSION_PARTS))
-MICRO              := $(word 3,$(VERSION_PARTS))
+PATCH              := $(word 3,$(VERSION_PARTS))
 
 NEXT_MAJOR         := $(shell echo $$(($(MAJOR)+1)))
 NEXT_MINOR         := $(shell echo $$(($(MINOR)+1)))
-NEXT_MICRO          = $(shell echo $$(($(MICRO)+$(COMMITS_SINCE_TAG))))
+NEXT_PATCH          = $(shell echo $$(($(PATCH)+$(COMMITS_SINCE_TAG))))
 
 ifeq ($(strip $(COMMITS_SINCE_TAG)),)
-CURRENT_VERSION_MICRO := $(MAJOR).$(MINOR).$(MICRO)
-CURRENT_VERSION_MINOR := $(CURRENT_VERSION_MICRO)
-CURRENT_VERSION_MAJOR := $(CURRENT_VERSION_MICRO)
+CURRENT_VERSION_PATCH := $(MAJOR).$(MINOR).$(PATCH)
+CURRENT_VERSION_MINOR := $(CURRENT_VERSION_PATCH)
+CURRENT_VERSION_MAJOR := $(CURRENT_VERSION_PATCH)
 else
-CURRENT_VERSION_MICRO := $(MAJOR).$(MINOR).$(NEXT_MICRO)
+CURRENT_VERSION_PATCH := $(MAJOR).$(MINOR).$(NEXT_PATCH)
 CURRENT_VERSION_MINOR := $(MAJOR).$(NEXT_MINOR).0
 CURRENT_VERSION_MAJOR := $(NEXT_MAJOR).0.0
 endif
@@ -38,18 +38,18 @@ BRANCH_NAME        := $(shell git rev-parse --abbrev-ref HEAD)
 TAG_MESSAGE         = "$(TIME) $(DATE) $(AUTHOR) $(BRANCH_NAME)"
 COMMIT_MESSAGE     := $(shell git log --format=%B -n 1 $(COMMIT))
 
-CURRENT_TAG_MICRO  := "v$(CURRENT_VERSION_MICRO)"
+CURRENT_TAG_PATCH  := "v$(CURRENT_VERSION_PATCH)"
 CURRENT_TAG_MINOR  := "v$(CURRENT_VERSION_MINOR)"
 CURRENT_TAG_MAJOR  := "v$(CURRENT_VERSION_MAJOR)"
 
 # --- Version commands ---
-.PHONY: version version-micro version-minor version-majo
+.PHONY: version version-patch version-minor version-majo
 
 version:
-	@$(MAKE) version-micro
+	@$(MAKE) version-patch
 
-version-micro:
-	@echo "$(CURRENT_VERSION_MICRO)"
+version-patch:
+	@echo "$(CURRENT_VERSION_PATCH)"
 
 version-minor:
 	@echo "$(CURRENT_VERSION_MINOR)"
@@ -58,10 +58,10 @@ version-major:
 	@echo "$(CURRENT_VERSION_MAJOR)"
 
 # --- Tag commands ---
-.PHONY: tag-micro tag-minor tag-major
+.PHONY: tag-patch tag-minor tag-major
 
-tag-micro:
-	@echo "$(CURRENT_TAG_MICRO)"
+tag-patch:
+	@echo "$(CURRENT_TAG_PATCH)"
 
 tag-minor:
 	@echo "$(CURRENT_TAG_MINOR)"
@@ -85,3 +85,22 @@ commit-message:
 # requires wgo: https://github.com/bokwoon95/wgo
 run:
 	wgo run ./tests/main.go
+
+
+
+# -- Release --
+.PHONY: version-update patch minor major
+
+version-update:
+	git tag "v$(VERS)"
+	git push --tags
+
+patch:
+	$(MAKE) version-update VERS=$(MAJOR).$(MINOR).$(NEXT_PATCH)
+
+minor:
+	$(MAKE) version-update VERS=$(MAJOR).$(NEXT_MINOR).0
+
+major:
+	$(MAKE) version-update VERS=$(NEXT_MAJOR).0.0
+
