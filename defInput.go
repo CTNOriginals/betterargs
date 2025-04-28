@@ -1,6 +1,11 @@
 package betterargs
 
-import "github.com/CTNOriginals/betterargs/utils"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/CTNOriginals/betterargs/utils"
+)
 
 type Input struct {
 	Name        string
@@ -28,6 +33,20 @@ func (this Input) String() string {
 	return utils.StructToString(this)
 }
 
+func (this Input) displayName() string {
+	if this.Required {
+		return fmt.Sprintf("<%s>", this.Name)
+	}
+
+	return fmt.Sprintf("[%s]", this.Name)
+}
+
+func (this Input) Guide() (guide string) {
+	guide += fmt.Sprintf("\t%s: max[%d]", this.displayName(), this.MaxOccurences)
+	guide += fmt.Sprintf("\n\t  %s", this.Description)
+	return guide
+}
+
 type InputOrder []Input
 
 func (this InputOrder) String() string {
@@ -38,4 +57,21 @@ func (this InputOrder) String() string {
 	}
 
 	return utils.MapToString(items, func(val string) string { return val })
+}
+
+func (this InputOrder) displayNames() (names []string) {
+	for _, input := range this {
+		names = append(names, input.displayName())
+	}
+
+	return names
+}
+
+func (this InputOrder) Guide() (guide string) {
+	var items []string
+	for _, input := range this {
+		items = append(items, input.Guide())
+	}
+
+	return strings.Join(items, "\n")
 }

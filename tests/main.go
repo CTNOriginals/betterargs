@@ -13,8 +13,18 @@ var argOptions = betterargs.MFlags{
 	"help": {
 		Aliases:     []string{"-H"},
 		Description: "Display a list of possible arguments along with their description",
+		Inputs: betterargs.InputOrder{
+			{
+				Name:          "flag",
+				Description:   "Any flag(s) to describe with more detail",
+				MaxOccurences: -1,
+				Validator: func(arg string) bool {
+					return strings.HasPrefix(arg, "-")
+				},
+			},
+		},
 		Action: func(instance betterargs.Instance) {
-			fmt.Println(instance)
+			// fmt.Println(instance)
 		},
 	},
 	"files": {
@@ -43,7 +53,7 @@ var argOptions = betterargs.MFlags{
 			},
 		},
 		Action: func(instance betterargs.Instance) {
-			fmt.Println(instance)
+			// fmt.Println(instance)
 		},
 	},
 }
@@ -51,8 +61,8 @@ var argOptions = betterargs.MFlags{
 var testArgs = []string{"C:\\path\\to\\file\\betterargs.exe",
 	"--files", "./path/to/dir/", "C:/foo/bar/", "filename", ".ext",
 	// "--file", "path/to/file.ext", "path2/to3/file45.ext",
-	"--help",
-	"-H",
+	"--help", "--files",
+	// "-H ",
 }
 
 func main() {
@@ -60,5 +70,7 @@ func main() {
 
 	var parsed = betterargs.ParseArguments(testArgs, argOptions)
 	betterargs.ExecuteArguments(parsed)
+	// fmt.Println(parsed)
+	fmt.Println(argOptions.Guide())
 	// fmt.Println(betterargs.ParseArguments(testArgs, argOptions))
 }

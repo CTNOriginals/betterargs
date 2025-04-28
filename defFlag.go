@@ -3,6 +3,7 @@ package betterargs
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/CTNOriginals/betterargs/utils"
 )
@@ -27,6 +28,22 @@ type Flag struct {
 
 func (this Flag) String() string {
 	return utils.StructToString(this)
+}
+
+func (this Flag) guide(key string, extended bool) (guide string) {
+	var flags = append([]string{"--" + key}, this.Aliases...)
+	guide = strings.Join(flags, ", ")
+	guide += ": "
+
+	if extended {
+		guide += fmt.Sprintf("\n\t%s", this.Description)
+		guide += "\n" + this.Inputs.Guide()
+	} else {
+		guide += strings.Join(this.Inputs.displayNames(), " ")
+		guide += fmt.Sprintf("\n\t%s", this.Description)
+	}
+
+	return guide
 }
 
 // A map of argument options that define all options for the current program
@@ -108,4 +125,19 @@ func (this MFlags) parseInputs(def Flag, instance *Instance, args []string) (off
 	}
 
 	return offset
+}
+
+// Returns a syntax guide explaining how to use all flags and their inputs defined in this map
+//
+// If any flags are provided, this function only returns the guides for those flags
+// along with any extended description that is usually not included in the full guide
+func (this MFlags) Guide(flags ...string) (guide string) {
+	this.validate()
+
+	var flagGuides []string
+	for key, def := range this {
+		flagGuides = append(flagGuides, def.guide(key, false))
+	}
+
+	return strings.Join(flagGuides, "\n")
 }
